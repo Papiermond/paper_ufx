@@ -1,0 +1,6 @@
+# Binaries & build artifacts
+*.exe
+*.bin
+build/
+bin/
+.system_generated/
