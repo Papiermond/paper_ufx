@@ -15,7 +15,7 @@ panel :: proc(rect: gfx.Rect, background_color: gfx.Color, border_color: gfx.Col
 	}
 }
 
-button :: proc(rect: gfx.Rect, text: string, text_scale: f32 = 2.0, style: Button_Style = DEFAULT_BUTTON_STYLE) -> bool {
+button_text :: proc(rect: gfx.Rect, text: string, text_scale: f32 = 2.0, style: Button_Style = DEFAULT_BUTTON_STYLE) -> bool {
 	mouse_pos := input.get_mouse_position()
 	is_hovered := point_in_rect(mouse_pos, rect)
 
@@ -37,6 +37,31 @@ button :: proc(rect: gfx.Rect, text: string, text_scale: f32 = 2.0, style: Butto
 		gfx.draw_text(text, text_x, text_y, text_scale, style.text_color)
 	}
 	return is_hovered && input.is_mouse_button_pressed(.LEFT)
+}
+
+button_icon :: proc(rect: gfx.Rect, icon: gfx.Texture, icon_size: [2]f32 = {0, 0}, style: Button_Style = DEFAULT_BUTTON_STYLE) -> bool {
+    mouse_pos := input.get_mouse_position()
+	is_hovered := point_in_rect(mouse_pos, rect)
+
+	bg_color := style.bg_color
+	if is_hovered {
+		global_ui_state.mouse_captured = true
+		bg_color = style.hover_color
+	}
+
+    if icon.id != 0 {
+        sz := icon_size if (icon_size.x > 0 && icon_size.y > 0) else [2]f32{f32(icon.width),f32(icon.height)}
+        icon_x := rect.x + (rect.width - sz.x) / 2
+        icon_y := rect.y + (rect.width - sz.y) / 2
+        dst := gfx.Rect{icon_x, icon_y, sz.x, sz.y}
+        gfx.draw_texture_pro(icon, {0, 0, f32(icon.width), f32(icon.height)}, dst, {0, 0}, 0, gfx.WHITE)
+    }
+    return is_hovered && input.is_mouse_button_pressed(.LEFT)
+}
+
+button :: proc{
+    button_text,
+    button_icon,
 }
 
 label :: proc(pos: [2]f32, text: string, scale: f32 = 2.0, color: gfx.Color = gfx.WHITE) {
