@@ -39,7 +39,7 @@ button_text :: proc(rect: gfx.Rect, text: string, text_scale: f32 = 2.0, style: 
 	return is_hovered && input.is_mouse_button_pressed(.LEFT)
 }
 
-button_icon :: proc(rect: gfx.Rect, icon: gfx.Texture, icon_size: [2]f32 = {0, 0}, style: Button_Style = DEFAULT_BUTTON_STYLE) -> bool {
+button_icon :: proc(rect: gfx.Rect, icon: gfx.Texture, style: Button_Style = DEFAULT_BUTTON_STYLE, icon_size: [2]f32 = {0, 0}) -> bool {
 	mouse_pos := input.get_mouse_position()
 	is_hovered := point_in_rect(mouse_pos, rect)
 
@@ -49,13 +49,33 @@ button_icon :: proc(rect: gfx.Rect, icon: gfx.Texture, icon_size: [2]f32 = {0, 0
 		bg_color = style.hover_color
 	}
 
-	if icon.id != 0 {
-		sz := icon_size if (icon_size.x > 0 && icon_size.y > 0) else [2]f32{f32(icon.width), f32(icon.height)}
-		icon_x := rect.x + (rect.width - sz.x) / 2
-		icon_y := rect.y + (rect.width - sz.y) / 2
-		dst := gfx.Rect{icon_x, icon_y, sz.x, sz.y}
-		gfx.draw_texture_pro(icon, {0, 0, f32(icon.width), f32(icon.height)}, dst, {0, 0}, 0, gfx.WHITE)
+	// Flaeche & Rahmen zeichnen
+	gfx.draw_rect(rect, bg_color)
+	if style.border_width > 0.0 {
+		gfx.draw_rect_lines(rect, style.border_width, style.border_color)
 	}
+
+	if icon.id != 0 {
+		sz := icon_size
+		if (sz.x <= 0 || sz.y <= 0) && icon.height > 0 {
+			// Proportional einpassen mit 6px Rand:
+			avail_w := rect.width - 6
+			avail_h := rect.height - 6
+			aspect := f32(icon.width) / f32(icon.height)
+
+			if avail_w / aspect <= avail_h {
+				sz = {avail_w, avail_w / aspect}
+			} else {
+				sz = {avail_h * aspect, avail_h}
+			}
+		}
+
+		icon_x := rect.x + (rect.width - sz.x) / 2.0
+		icon_y := rect.y + (rect.height - sz.y) / 2.0
+		dst := gfx.Rect{icon_x, icon_y, sz.x, sz.y}
+		gfx.draw_texture_pro(icon, {0, 0, f32(icon.width), f32(icon.height)}, dst, {0, 0}, 0, style.text_color)
+	}
+
 	return is_hovered && input.is_mouse_button_pressed(.LEFT)
 }
 
