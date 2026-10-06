@@ -49,7 +49,6 @@ button_icon :: proc(rect: gfx.Rect, icon: gfx.Texture, style: Button_Style = DEF
 		bg_color = style.hover_color
 	}
 
-	// Flaeche & Rahmen zeichnen
 	gfx.draw_rect(rect, bg_color)
 	if style.border_width > 0.0 {
 		gfx.draw_rect_lines(rect, style.border_width, style.border_color)
@@ -58,7 +57,6 @@ button_icon :: proc(rect: gfx.Rect, icon: gfx.Texture, style: Button_Style = DEF
 	if icon.id != 0 {
 		sz := icon_size
 		if (sz.x <= 0 || sz.y <= 0) && icon.height > 0 {
-			// Proportional einpassen mit 6px Rand:
 			avail_w := rect.width - 6
 			avail_h := rect.height - 6
 			aspect := f32(icon.width) / f32(icon.height)
